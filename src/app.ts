@@ -1,18 +1,27 @@
-import { fetchUser, GitInfo } from "./model/GitInfo";
-import NumberSingleton from "./model/NumberSingleton";
+import mongoose from "mongoose";
+import UserController from "./controller/User";
+import { IUser } from "./model/User.model";
+import { fetchUser } from "./services/GitInfo";
+import OutInfo from "./services/OutInfo";
+
+const MONGOOSE_URL: string = "mongodb://localhost:27017/github-api";
 
 const app = async () => {
-  // Singleton
-  const numberSingletonOne: NumberSingleton = NumberSingleton.getInstance();
-  const numberSingletonTwo: NumberSingleton = NumberSingleton.getInstance();
-  numberSingletonOne.setNum(18);
-  console.log(numberSingletonTwo.getNum());
-
   try {
-    const gitInfo: GitInfo = await fetchUser("vitorkaio");
-    console.log(gitInfo.toString());
-  } catch (_) {
-    console.log("Request Github Error");
+    // Connect mongoose
+    await mongoose.connect(`${MONGOOSE_URL}`, {
+      useCreateIndex: true,
+      useFindAndModify: false,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    // const gitInfo: IUser = await fetchUser("kaio");
+    // await UserController.insertUser(gitInfo);
+    const res: IUser[] = await UserController.getUsers();
+    OutInfo.printUser(res);
+  } catch (err) {
+    console.log(err);
   }
 };
 
